@@ -57,7 +57,7 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(false);
-        actionBar.setDisplayUseLogoEnabled(false);
+        actionBar.setDisplayUseLogoEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
 
         LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
