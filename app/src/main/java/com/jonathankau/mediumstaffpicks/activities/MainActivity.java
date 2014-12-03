@@ -101,6 +101,7 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
         intent.putExtras(args);
 
         startActivity(intent);
+        overridePendingTransition(R.anim.slide_in_left, R.anim.fall_back_right);
     }
 
 

@@ -52,6 +52,12 @@ public class WebStoryActivity extends Activity {
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(R.anim.fall_forward_left, R.anim.slide_out_right);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -61,6 +67,7 @@ public class WebStoryActivity extends Activity {
             return true;
         } else if (id == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
+            overridePendingTransition(R.anim.fall_forward_left, R.anim.slide_out_right);
             return true;
         }
         return super.onOptionsItemSelected(item);
