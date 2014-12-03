@@ -1,14 +1,15 @@
 package com.jonathankau.mediumstaffpicks.activities;
 
 import android.app.ActionBar;
+import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.app.ActionBar.LayoutParams;
 
 import com.google.gson.JsonObject;
 import com.jonathankau.mediumstaffpicks.R;
@@ -67,6 +68,12 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
     }
 
     @Override
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
@@ -87,6 +94,14 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
 
     @Override
     public void onFragmentInteraction(Story story) {
+        Intent intent = new Intent(this, WebStoryActivity.class);
 
+        Bundle args = new Bundle();
+        args.putString("STORY_URL", story.getStoryUrl());
+        intent.putExtras(args);
+
+        startActivity(intent);
     }
+
+
 }
