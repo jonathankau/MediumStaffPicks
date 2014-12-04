@@ -3,14 +3,23 @@ package com.jonathankau.mediumstaffpicks.fragments;
 import android.app.Activity;
 import android.app.ListFragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.gson.JsonObject;
 import com.jonathankau.mediumstaffpicks.adapters.StoriesAdapter;
 import com.jonathankau.mediumstaffpicks.models.Story;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
 
 import java.util.ArrayList;
+
+import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
+import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 
 /**
@@ -21,19 +30,19 @@ import java.util.ArrayList;
  * interface.
  */
 public class FeedFragment extends ListFragment {
+    private final String API_URL = "https://api.import.io/store/data/ec6e5d6f-64ab-43ad-90ef-99f319a95fa4/_query?input/webpage/url=https%3A%2F%2Fmedium.com%2F&_user=338e4742-9bee-463c-b7df-4ac1eb0e1506&_apikey=";
+    private final String API_KEY = "aNsJDq04ENEx1zfQD3DOgaem312%2BBvpoBYNfMfJcOZEoc9GpzYd%2F6gYsnI6WNj29qnYmZZh4OzHFscVl79TmwA%3D%3D";
 
     private static final String STATE_STORIES = "stories";
     private ArrayList<Story> stories;
     private StoriesAdapter storiesAdapter;
 
     private OnFragmentInteractionListener mListener;
+    private PullToRefreshLayout mPullToRefreshLayout;
 
     // TODO: Rename and change types of parameters
-    public static FeedFragment newInstance(ArrayList<Story> stories) {
+    public static FeedFragment newInstance() {
         FeedFragment fragment = new FeedFragment();
-        Bundle args = new Bundle();
-        args.putParcelableArrayList(STATE_STORIES, stories);
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -48,10 +57,11 @@ public class FeedFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments() != null) {
-            stories = getArguments().getParcelableArrayList(STATE_STORIES);
-        } else if (savedInstanceState != null) {
+        if (savedInstanceState != null) {
             stories = savedInstanceState.getParcelableArrayList(STATE_STORIES);
+        } else {
+            stories = new ArrayList<Story>();
+            updateStories();
         }
 
         // Display content through adapter
@@ -59,6 +69,28 @@ public class FeedFragment extends ListFragment {
         setListAdapter(storiesAdapter);
     }
 
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view,savedInstanceState);
+
+        // This is the View which is created by ListFragment
+        ViewGroup viewGroup = (ViewGroup) view;
+
+        // We need to create a PullToRefreshLayout manually
+        mPullToRefreshLayout = new PullToRefreshLayout(viewGroup.getContext());
+
+        // We can now setup the PullToRefreshLayout
+        ActionBarPullToRefresh.from(getActivity())
+                .insertLayoutInto(viewGroup)
+                .theseChildrenArePullable(getListView(), getListView().getEmptyView())
+                .listener(new OnRefreshListener() {
+                    @Override
+                    public void onRefreshStarted(View view) {
+                        updateStories();
+                    }
+                })
+        .setup(mPullToRefreshLayout);
+    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -97,10 +129,29 @@ public class FeedFragment extends ListFragment {
         savedInstanceState.putParcelableArrayList(STATE_STORIES, stories);
     }
 
+    private void updateStories() {
+        Ion.with(this)
+                .load(API_URL + API_KEY)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception e, JsonObject result) {
+                        if (e == null) {
+                            stories = Story.fromJsonArray(result.get("results").getAsJsonArray());
+                        } else {
+                            Log.d("JKAU", e.toString());
+                        }
+
+                        refreshStories(stories);
+                    }
+                });
+    }
+
     public void refreshStories(ArrayList<Story> stories) {
         storiesAdapter.clear();
         storiesAdapter.addAll(stories);
         Toast.makeText(getActivity(), "Refreshed", Toast.LENGTH_SHORT).show();
+        mPullToRefreshLayout.setRefreshComplete();
     }
 
     /**

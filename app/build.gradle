@@ -25,4 +25,5 @@ dependencies {
     compile 'io.reactivex:rxandroid:0.22.0'
     compile 'com.koushikdutta.ion:ion:2.+'
     compile "com.android.support:support-v4:21.0.+"
+    compile 'com.github.chrisbanes.actionbarpulltorefresh:library:+'
 }

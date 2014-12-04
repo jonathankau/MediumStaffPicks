@@ -2,6 +2,7 @@ package com.jonathankau.mediumstaffpicks.activities;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.view.LayoutInflater;
@@ -80,6 +81,12 @@ public class WebStoryActivity extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+            return true;
+        } else if (id == R.id.action_share) {
+            Intent i = new Intent(Intent.ACTION_SEND);
+            i.setType("text/plain");
+            i.putExtra(Intent.EXTRA_TEXT, url);
+            startActivity(Intent.createChooser(i, "Share Story"));
             return true;
         } else if (id == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
