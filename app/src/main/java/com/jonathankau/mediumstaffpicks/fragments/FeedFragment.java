@@ -5,6 +5,7 @@ import android.app.ListFragment;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.jonathankau.mediumstaffpicks.adapters.StoriesAdapter;
 import com.jonathankau.mediumstaffpicks.models.Story;
@@ -21,8 +22,9 @@ import java.util.ArrayList;
  */
 public class FeedFragment extends ListFragment {
 
-    private static final String STORIES = "stories";
+    private static final String STATE_STORIES = "stories";
     private ArrayList<Story> stories;
+    private StoriesAdapter storiesAdapter;
 
     private OnFragmentInteractionListener mListener;
 
@@ -30,7 +32,7 @@ public class FeedFragment extends ListFragment {
     public static FeedFragment newInstance(ArrayList<Story> stories) {
         FeedFragment fragment = new FeedFragment();
         Bundle args = new Bundle();
-        args.putParcelableArrayList(STORIES, stories);
+        args.putParcelableArrayList(STATE_STORIES, stories);
         fragment.setArguments(args);
         return fragment;
     }
@@ -47,11 +49,14 @@ public class FeedFragment extends ListFragment {
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null) {
-            stories = getArguments().getParcelableArrayList(STORIES);
+            stories = getArguments().getParcelableArrayList(STATE_STORIES);
+        } else if (savedInstanceState != null) {
+            stories = savedInstanceState.getParcelableArrayList(STATE_STORIES);
         }
 
-        // TODO: Change Adapter to display your content
-        setListAdapter(new StoriesAdapter(getActivity(), stories));
+        // Display content through adapter
+        storiesAdapter = new StoriesAdapter(getActivity(), stories);
+        setListAdapter(storiesAdapter);
     }
 
 
@@ -82,6 +87,20 @@ public class FeedFragment extends ListFragment {
             // fragment is attached to one) that an item has been selected.
             mListener.onFragmentInteraction(stories.get(position));
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
+        // Save necessary data
+        savedInstanceState.putParcelableArrayList(STATE_STORIES, stories);
+    }
+
+    public void refreshStories(ArrayList<Story> stories) {
+        storiesAdapter.clear();
+        storiesAdapter.addAll(stories);
+        Toast.makeText(getActivity(), "Refreshed", Toast.LENGTH_SHORT).show();
     }
 
     /**

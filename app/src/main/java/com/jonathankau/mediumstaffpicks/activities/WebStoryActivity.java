@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import com.jonathankau.mediumstaffpicks.R;
 
@@ -17,6 +18,8 @@ import butterknife.InjectView;
 
 public class WebStoryActivity extends Activity {
     @InjectView(R.id.story_page) WebView storyPage;
+    private final String STATE_URL = "state_url";
+    private String url;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +30,12 @@ public class WebStoryActivity extends Activity {
         ButterKnife.inject(this);
 
         // Set webview url
-        String url = getIntent().getExtras().getString("STORY_URL");
+        storyPage.setWebViewClient(new WebViewClient());
+        if (getIntent() != null) {
+            url = getIntent().getExtras().getString("STORY_URL");
+        } else if (savedInstanceState != null) {
+            url = savedInstanceState.getString(STATE_URL);
+        }
         storyPage.loadUrl(url);
     }
 
@@ -42,6 +50,14 @@ public class WebStoryActivity extends Activity {
         View customNav = LayoutInflater.from(this).inflate(R.layout.actionbar, null);
 
         actionBar.setCustomView(customNav, layoutParams);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
+        // Save necessary data
+        savedInstanceState.putString(STATE_URL, url);
     }
 
     @Override
